@@ -30,12 +30,62 @@ function constructObjectProxy(vm,obj,namespace) {
     }
     return proxyObj;
 }
+const arrayProto = Array.prototype;
+//代理数组函数
+function defArrayFunc(obj,func,namespace,vm) {
+    Object.defineProperty(obj,func,{
+        enumerable:true,
+        configurable:true,
+        value:function (...args) {
+            let original = arrayProto[func];
+            let result = original.apply(this,args);
+            console.log(getNameSpace(namespace,""))
+            return result;
+        }
+    })
+}
+//代理数组
+function proxyArr(vm,arr,namespace) {
+    let obj = {
+        eleType:"Array",
+        toString:function () {
+            let result = "";
+            for(let i = 0;i < arr.length;i++){
+                result += arr[i] + ', ';
+            }
+            return result.substring(0,arr.length - 2);
+        },
+        push(){
 
+        },
+        pop(){
+
+        },
+        shift() {
+
+        },
+        unshift() {
+
+        }
+    };
+    defArrayFunc.call(vm,obj,"push",namespace,vm)
+    defArrayFunc.call(vm,obj,"pop",namespace,vm)
+    defArrayFunc.call(vm,obj,"shift",namespace,vm)
+    defArrayFunc.call(vm,obj,"unshift",namespace,vm)
+    arr.__proto__ = obj;
+    return arr;
+}
 // vm Due对象
 export function contructProxy(vm, obj, namespace) {
-    let proxyObj = {};
+    let proxyObj = null;
     if (obj instanceof Array) {//判断代理的类型
-
+        proxyObj = new Array(obj.length);
+        //代理数组的每一个元素
+        for(let i = 0;i < obj.length;i++){
+            proxyObj[i] = contructProxy(vm,obj[i],namespace)
+        }
+    //    代理整个数组
+        proxyObj = proxyArr(vm,obj,namespace);
     }else if(obj instanceof Object){
         proxyObj = constructObjectProxy(vm,obj,namespace);
     }else {
