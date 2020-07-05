@@ -2,30 +2,31 @@
 function constructObjectProxy(vm,obj,namespace) {
     let proxyObj = {};
     for(let prop in obj){
-        console.log(prop);
         Object.defineProperty(proxyObj,prop,{
             configurable:true,
             get() {
-                console.log("get")
                 return obj[prop];
             },
             set(value) {
-                console.log(prop)
+                console.log(getNameSpace(namespace,prop))
                 obj[prop] = value;
             }
         })
-    //    往自己身上也设置代理
+    //    往Due自己身上也设置代理
         Object.defineProperty(vm,prop,{
             configurable:true,
             get() {
-                console.log("get")
                 return obj[prop];
             },
             set(value) {
-                console.log(prop)
+                console.log(getNameSpace(namespace,prop))
                 obj[prop] = value;
             }
         })
+        //如果对象的属性是对象的话，继续进行代理这个属性
+        if(obj[prop] instanceof Object){
+            proxyObj[prop] = contructProxy(vm,obj[prop],getNameSpace(namespace,prop))
+        }
     }
     return proxyObj;
 }
@@ -41,5 +42,14 @@ export function contructProxy(vm, obj, namespace) {
         throw new Error("Error");
     }
     return proxyObj;
+}
 
+function getNameSpace(nowNameSpace,nowProp) {
+    if(nowNameSpace == null || nowNameSpace === ""){
+        return nowProp;
+    }else if(nowProp == null || nowProp === ""){
+        return nowNameSpace;
+    }else {
+        return nowNameSpace + '.' + nowProp;
+    }
 }
