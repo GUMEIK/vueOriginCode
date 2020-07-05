@@ -5,6 +5,7 @@ function constructObjectProxy(vm,obj,namespace) {
         Object.defineProperty(proxyObj,prop,{
             configurable:true,
             get() {
+                console.log("代理对象")
                 return obj[prop];
             },
             set(value) {
@@ -80,11 +81,11 @@ export function contructProxy(vm, obj, namespace) {
     let proxyObj = null;
     if (obj instanceof Array) {//判断代理的类型
         proxyObj = new Array(obj.length);
-        //代理数组的每一个元素
+        //代理数组的每一个元素(此处好像并不能代理数组中某一项的数据)
         for(let i = 0;i < obj.length;i++){
             proxyObj[i] = contructProxy(vm,obj[i],namespace)
         }
-    //    代理整个数组
+    //    代理整个数组(变异方法)
         proxyObj = proxyArr(vm,obj,namespace);
     }else if(obj instanceof Object){
         proxyObj = constructObjectProxy(vm,obj,namespace);
